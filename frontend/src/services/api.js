@@ -1,14 +1,13 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: '', // Menggunakan base domain (vite proxy akan meneruskannya ke backend Go)
+  baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Menyematkan token JWT ke header Authorization untuk semua request ke backend
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -17,16 +16,13 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// Interceptor response untuk menangani 401 Unauthorized otomatis
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       if (window.location.pathname.startsWith('/admin')) {
