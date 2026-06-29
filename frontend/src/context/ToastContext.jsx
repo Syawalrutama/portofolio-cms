@@ -16,7 +16,8 @@ export const ToastProvider = ({ children }) => {
 
   const addToast = useCallback((type, message) => {
     const id = Date.now() + Math.random().toString(36).substr(2, 9)
-    setToasts((prev) => [...prev, { id, type, message }])
+    setToasts((prev) => [...prev, { id
+      , type, message }])
     
     // Auto remove after 4 seconds
     setTimeout(() => {
