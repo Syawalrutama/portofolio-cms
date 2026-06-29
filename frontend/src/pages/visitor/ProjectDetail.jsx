@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { FolderGit2, Github, ExternalLink, ArrowLeft } from 'lucide-react'
 import api from '../../services/api'
+import { getImageUrl } from '../../utils/url'
 
 export default function ProjectDetail() {
   const { id } = useParams()
@@ -61,7 +62,7 @@ export default function ProjectDetail() {
         <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-sky-100 bg-white p-2 shadow-md">
           {project.imageUrl ? (
             <img
-              src={project.imageUrl}
+              src={getImageUrl(project.imageUrl)}
               alt={project.title}
               className="h-full w-full object-cover rounded-xl"
             />

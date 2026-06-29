@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2, Upload, Calendar, Award, X, Image as ImageIcon } from 'lucide-react'
 import { certificateService } from '../../services/certificateService'
 import { useToast } from '../../context/ToastContext'
+import { getImageUrl } from '../../utils/url'
 import { CardSkeleton } from '../../components/common/Skeleton'
 import DeleteConfirmModal from '../../components/common/DeleteConfirmModal'
 
@@ -195,7 +196,7 @@ export default function ManageCertificates() {
               <div className="relative aspect-[4/3] w-full border-b border-slate-800 bg-[#0b0f19] flex items-center justify-center overflow-hidden">
                 {cert.imageUrl ? (
                   <img
-                    src={cert.imageUrl}
+                    src={getImageUrl(cert.imageUrl)}
                     alt={cert.name}
                     className="h-full w-full object-cover"
                   />

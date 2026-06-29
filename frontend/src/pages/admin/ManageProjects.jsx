@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2, Upload, Github, ExternalLink, X, Image as ImageIcon, FolderGit2 } from 'lucide-react'
 import { projectService } from '../../services/projectService'
 import { useToast } from '../../context/ToastContext'
+import { getImageUrl } from '../../utils/url'
 import { CardSkeleton } from '../../components/common/Skeleton'
 import DeleteConfirmModal from '../../components/common/DeleteConfirmModal'
 
@@ -181,7 +182,7 @@ export default function ManageProjects() {
               <div className="relative aspect-video w-full border-b border-slate-800 bg-[#0b0f19] flex items-center justify-center overflow-hidden">
                 {project.imageUrl ? (
                   <img
-                    src={project.imageUrl}
+                    src={getImageUrl(project.imageUrl)}
                     alt={project.title}
                     className="h-full w-full object-cover"
                   />

@@ -8,6 +8,7 @@ import {
 import api from '../../services/api'
 import { contactService } from '../../services/contactService'
 import { useToast } from '../../context/ToastContext'
+import { getImageUrl } from '../../utils/url'
 
 export default function Home() {
   const [profile, setProfile] = useState(null)
@@ -208,7 +209,7 @@ export default function Home() {
               <div className="relative aspect-square w-72 md:w-80 rounded-2xl overflow-hidden border border-sky-100 bg-white p-2 shadow-2xl">
                 {profile?.avatarUrl ? (
                   <img
-                    src={`${import.meta.env.VITE_API_URL}${profile.avatarUrl}`}
+                    src={getImageUrl(profile.avatarUrl)}
                     alt={profile.fullName}
                     className="h-full w-full object-cover rounded-xl transition duration-500 group-hover:scale-105"
                   />
@@ -463,7 +464,7 @@ export default function Home() {
                 <div className="relative aspect-video w-full border-b border-sky-100/60 bg-sky-50/50 overflow-hidden">
                   {project.imageUrl ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}${project.imageUrl}`}
+                      src={getImageUrl(project.imageUrl)}
                       alt={project.title}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
@@ -526,7 +527,7 @@ export default function Home() {
                 <div className="aspect-video w-full rounded-lg bg-sky-50/50 border border-sky-100 flex items-center justify-center overflow-hidden mb-4 relative">
                   {cert.imageUrl ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}${cert.imageUrl}`}
+                      src={getImageUrl(cert.imageUrl)}
                       alt={cert.name}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-103"
                     />

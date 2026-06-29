@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Save, Upload, User, Globe, MessageSquare, Linkedin, Github, Mail } from 'lucide-react'
 import { profileService } from '../../services/profileService'
 import { useToast } from '../../context/ToastContext'
+import { getImageUrl } from '../../utils/url'
 import { FormSkeleton } from '../../components/common/Skeleton'
 
 export default function ProfileSettings() {
@@ -147,7 +148,7 @@ export default function ProfileSettings() {
           <div className="relative mx-auto aspect-square w-40 rounded-full border border-slate-800 bg-[#0b0f19] flex items-center justify-center overflow-hidden group">
             {profile?.avatarUrl ? (
               <img
-                src={profile.avatarUrl}
+                src={getImageUrl(profile.avatarUrl)}
                 alt={profile.fullName}
                 className="h-full w-full object-cover transition-all group-hover:opacity-70"
               />

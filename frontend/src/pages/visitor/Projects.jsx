@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FolderGit2, Github, ExternalLink, ArrowRight, Search } from 'lucide-react'
 import api from '../../services/api'
+import { getImageUrl } from '../../utils/url'
 
 export default function Projects() {
   const [projects, setProjects] = useState([])
@@ -119,7 +120,7 @@ export default function Projects() {
               <div className="aspect-video w-full border-b border-sky-100/60 bg-sky-50/50 overflow-hidden">
                 {project.imageUrl ? (
                   <img
-                    src={project.imageUrl}
+                    src={getImageUrl(project.imageUrl)}
                     alt={project.title}
                     className="h-full w-full object-cover"
                   />
