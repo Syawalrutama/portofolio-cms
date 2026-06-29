@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom'
 import { 
   ArrowRight, FolderGit2, Award, CheckSquare, Mail, Github, 
   Linkedin, ExternalLink, Calendar, BookOpen, Layers, Cpu, 
-  Database, Terminal, MessageSquare, Send, Check, Phone 
+  Database, Terminal, MessageSquare, Send, Check, Phone,
+  AlertCircle, RefreshCw
 } from 'lucide-react'
 import api from '../../services/api'
 import { contactService } from '../../services/contactService'
@@ -16,6 +17,7 @@ export default function Home() {
   const [projects, setProjects] = useState([])
   const [certificates, setCertificates] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   // Form State
   const [formData, setFormData] = useState({
@@ -28,29 +30,32 @@ export default function Home() {
   
   const { showSuccess, showError } = useToast()
 
-  useEffect(() => {
-    const fetchPublicData = async () => {
-      try {
-        const [profileRes, skillsRes, projectsRes, certsRes] = await Promise.all([
-          api.get('/api/profile').catch(() => null),
-          api.get('/api/skills').catch(() => ({ data: { data: [] } })),
-          api.get('/api/projects').catch(() => ({ data: { data: [] } })),
-          api.get('/api/certificates').catch(() => ({ data: { data: [] } }))
-        ])
+  const fetchPublicData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [profileRes, skillsRes, projectsRes, certsRes] = await Promise.all([
+        api.get('/api/profile'),
+        api.get('/api/skills'),
+        api.get('/api/projects'),
+        api.get('/api/certificates')
+      ])
 
-        if (profileRes && profileRes.data && profileRes.data.data) {
-          setProfile(profileRes.data.data)
-        }
-        setSkills(skillsRes.data.data || [])
-        setProjects(projectsRes.data.data || [])
-        setCertificates(certsRes.data.data || [])
-      } catch (err) {
-        console.error("Gagal memuat data portofolio publik", err)
-      } finally {
-        setLoading(false)
+      if (profileRes && profileRes.data && profileRes.data.data) {
+        setProfile(profileRes.data.data)
       }
+      setSkills(skillsRes.data.data || [])
+      setProjects(projectsRes.data.data || [])
+      setCertificates(certsRes.data.data || [])
+    } catch (err) {
+      console.error("Gagal memuat data portofolio publik", err)
+      setError(err)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchPublicData()
   }, [])
 
@@ -137,11 +142,11 @@ export default function Home() {
   const techBadges = getTechBadges()
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-sky-50/50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent"></div>
-      </div>
-    )
+    return <HomeSkeleton />
+  }
+
+  if (error) {
+    return <HomeError onRetry={fetchPublicData} />
   }
 
   return (
@@ -698,6 +703,300 @@ export default function Home() {
         </div>
       </section>
 
+    </div>
+  )
+}
+
+// Skeleton screen that overlays the layout for a seamless experience
+function HomeSkeleton() {
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col bg-gradient-to-b from-sky-100 via-sky-50 to-white overflow-y-auto pb-20">
+      {/* Navbar Skeleton */}
+      <header className="sticky top-0 z-50 border-b border-sky-100/60 bg-white/75 py-4 backdrop-blur-lg shadow-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
+          <div className="h-6 w-32 rounded bg-slate-350 animate-pulse bg-gradient-to-r from-slate-200 to-slate-300" />
+          <div className="hidden items-center gap-8 md:flex">
+            <div className="h-4 w-12 rounded bg-slate-200 animate-pulse" />
+            <div className="h-4 w-16 rounded bg-slate-200 animate-pulse" />
+            <div className="h-4 w-14 rounded bg-slate-200 animate-pulse" />
+          </div>
+          <div className="hidden md:block">
+            <div className="h-8 w-28 rounded-lg bg-slate-200 animate-pulse" />
+          </div>
+          <div className="h-8 w-8 rounded-lg bg-slate-200 animate-pulse md:hidden" />
+        </div>
+      </header>
+
+      {/* Main Skeleton Content */}
+      <div className="space-y-20 flex-1">
+        {/* 1. Hero Section Skeleton */}
+        <section className="relative py-12 lg:py-20">
+          {/* Glow meshes background */}
+          <div className="absolute top-10 left-10 -z-10 h-72 w-72 rounded-full bg-primary-300/20 blur-[100px]" />
+          <div className="absolute bottom-10 right-10 -z-10 h-80 w-80 rounded-full bg-indigo-300/25 blur-[110px]" />
+
+          <div className="mx-auto max-w-6xl px-6 grid gap-12 lg:grid-cols-12 lg:items-center">
+            {/* Hero Left Content Skeleton */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              {/* Available Badge */}
+              <div className="h-6 w-64 rounded-full bg-slate-200 animate-pulse" />
+              
+              {/* Judul Skeleton */}
+              <div className="space-y-3">
+                <div className="h-10 w-3/4 rounded-lg bg-slate-200 animate-pulse" />
+                <div className="h-10 w-1/2 rounded-lg bg-slate-200 animate-pulse" />
+              </div>
+              
+              {/* Subtitle Skeleton */}
+              <div className="space-y-2 pt-2">
+                <div className="h-4 w-full rounded bg-slate-200 animate-pulse" />
+                <div className="h-4 w-5/6 rounded bg-slate-200 animate-pulse" />
+              </div>
+
+              {/* Tech Stack Skeleton */}
+              <div className="space-y-2 pt-2">
+                <div className="h-3 w-28 rounded bg-slate-200 animate-pulse" />
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-6 w-20 rounded-lg bg-slate-200 animate-pulse" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Button Skeleton */}
+              <div className="flex flex-wrap gap-4 pt-4">
+                <div className="h-12 w-36 rounded-xl bg-slate-300 animate-pulse" />
+                <div className="h-12 w-32 rounded-xl bg-slate-200 animate-pulse" />
+              </div>
+            </div>
+
+            {/* Avatar/Profile Image Skeleton */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative aspect-square w-72 md:w-80 rounded-2xl border border-sky-100 bg-white p-2 shadow-2xl">
+                <div className="h-full w-full rounded-xl bg-slate-200 animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Bar Skeleton */}
+          <div className="mx-auto max-w-6xl px-6 pt-16 grid gap-6 sm:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-sky-100 bg-white/70 p-6 flex items-center gap-4 shadow-md backdrop-blur-md">
+                <div className="rounded-lg bg-slate-200 h-12 w-12 shrink-0 animate-pulse" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-6 w-12 rounded bg-slate-300 animate-pulse" />
+                  <div className="h-3 w-24 rounded bg-slate-200 animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 2. About Section Skeleton */}
+        <section className="mx-auto max-w-6xl px-6 py-8">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-start">
+            {/* About Highlights Left */}
+            <div className="lg:col-span-5 grid gap-4 grid-cols-2">
+              <div className="col-span-2 rounded-xl border border-sky-100 bg-white/60 p-5 space-y-3 shadow-sm">
+                <div className="h-3 w-16 rounded bg-slate-200 animate-pulse" />
+                <div className="h-4 w-full rounded bg-slate-200 animate-pulse" />
+                <div className="h-4 w-5/6 rounded bg-slate-200 animate-pulse" />
+              </div>
+              <div className="rounded-xl border border-sky-100 bg-white/60 p-5 space-y-2 shadow-sm">
+                <div className="h-6 w-12 rounded bg-slate-300 animate-pulse" />
+                <div className="h-3 w-16 rounded bg-slate-200 animate-pulse" />
+              </div>
+              <div className="rounded-xl border border-sky-100 bg-white/60 p-5 space-y-2 shadow-sm">
+                <div className="h-6 w-12 rounded bg-slate-300 animate-pulse" />
+                <div className="h-3 w-24 rounded bg-slate-200 animate-pulse" />
+              </div>
+            </div>
+
+            {/* About Bio Right */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-2">
+                <div className="h-3 w-20 rounded bg-slate-200 animate-pulse" />
+                <div className="h-8 w-44 rounded bg-slate-300 animate-pulse" />
+              </div>
+              <div className="space-y-3">
+                <div className="h-4 w-full rounded bg-slate-200 animate-pulse" />
+                <div className="h-4 w-full rounded bg-slate-200 animate-pulse" />
+                <div className="h-4 w-3/4 rounded bg-slate-200 animate-pulse" />
+              </div>
+              <div className="flex items-center gap-4 pt-4 border-t border-slate-200">
+                <div className="h-3 w-28 rounded bg-slate-200 animate-pulse" />
+                <div className="flex gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-slate-200 animate-pulse" />
+                  <div className="h-8 w-8 rounded-lg bg-slate-200 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. Skills Section Skeleton */}
+        <section className="mx-auto max-w-6xl px-6 space-y-8 py-8">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="h-3 w-16 rounded bg-slate-200 animate-pulse" />
+            <div className="h-8 w-48 rounded bg-slate-300 animate-pulse" />
+          </div>
+
+          {/* Skill Columns */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-sky-100 bg-white/80 p-5 space-y-5 shadow-sm">
+                <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+                  <div className="h-5 w-5 rounded bg-slate-200 animate-pulse shrink-0" />
+                  <div className="h-4 w-28 rounded bg-slate-300 animate-pulse" />
+                </div>
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <div key={j} className="space-y-2">
+                      <div className="flex justify-between">
+                        <div className="h-3 w-16 rounded bg-slate-200 animate-pulse" />
+                        <div className="h-3 w-8 rounded bg-slate-200 animate-pulse" />
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-slate-100">
+                        <div className="h-full rounded-full bg-slate-200 animate-pulse" style={{ width: '60%' }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 4. Projects Section Skeleton */}
+        <section className="mx-auto max-w-6xl px-6 space-y-8 py-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-2">
+              <div className="h-3 w-20 rounded bg-slate-200 animate-pulse" />
+              <div className="h-8 w-44 rounded bg-slate-300 animate-pulse" />
+            </div>
+            <div className="h-4 w-24 rounded bg-slate-200 animate-pulse" />
+          </div>
+
+          {/* Project Cards Grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex flex-col overflow-hidden rounded-xl border border-sky-100 bg-white/70 shadow-md space-y-4 pb-5">
+                {/* Image aspect-video */}
+                <div className="relative aspect-video w-full bg-slate-200 animate-pulse" />
+                <div className="px-5 space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-5 w-3/4 rounded bg-slate-300 animate-pulse" />
+                    <div className="space-y-1.5">
+                      <div className="h-3 w-full rounded bg-slate-200 animate-pulse" />
+                      <div className="h-3 w-5/6 rounded bg-slate-200 animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="flex gap-4 pt-3 border-t border-slate-100">
+                    <div className="h-4 w-12 rounded bg-slate-200 animate-pulse" />
+                    <div className="h-4 w-12 rounded bg-slate-200 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 5. Certificates Section Skeleton */}
+        <section className="mx-auto max-w-6xl px-6 space-y-8 py-8">
+          <div className="flex flex-col items-center space-y-2">
+            <div className="h-3 w-20 rounded bg-slate-200 animate-pulse" />
+            <div className="h-8 w-48 rounded bg-slate-300 animate-pulse" />
+          </div>
+
+          {/* Certificate Cards Grid */}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex flex-col border border-sky-100 bg-white/70 rounded-xl p-5 shadow-md space-y-4">
+                <div className="aspect-video w-full rounded-lg bg-slate-200 animate-pulse" />
+                <div className="space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="h-4 w-5/6 rounded bg-slate-300 animate-pulse" />
+                    <div className="h-3 w-1/2 rounded bg-slate-200 animate-pulse" />
+                  </div>
+                  <div className="h-3 w-28 rounded bg-slate-200 animate-pulse pt-2 border-t border-slate-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 6. Contact Section Skeleton */}
+        <section className="mx-auto max-w-6xl px-6 space-y-8 py-8 border-t border-slate-200">
+          <div className="space-y-2">
+            <div className="h-3 w-24 rounded bg-slate-200 animate-pulse" />
+            <div className="h-8 w-40 rounded bg-slate-300 animate-pulse" />
+          </div>
+
+          <div className="grid gap-12 lg:grid-cols-12 items-start">
+            {/* Quick contact info cards (Left) */}
+            <div className="lg:col-span-5 space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex gap-4 p-4 rounded-xl border border-sky-100 bg-white/70 shadow-sm">
+                  <div className="rounded-lg bg-slate-200 animate-pulse h-11 w-11 shrink-0" />
+                  <div className="space-y-2 flex-1 pt-1">
+                    <div className="h-3.5 w-20 rounded bg-slate-200 animate-pulse" />
+                    <div className="h-4 w-32 rounded bg-slate-300 animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Contact Message Form (Right) */}
+            <div className="lg:col-span-7 rounded-xl border border-sky-100 bg-white/85 p-6 md:p-8 space-y-6 shadow-lg">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="h-3 w-20 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-11 w-full rounded-xl bg-slate-100 border border-slate-200/60" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-24 rounded bg-slate-200 animate-pulse" />
+                  <div className="h-11 w-full rounded-xl bg-slate-100 border border-slate-200/60" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-16 rounded bg-slate-200 animate-pulse" />
+                <div className="h-11 w-full rounded-xl bg-slate-100 border border-slate-200/60" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-16 rounded bg-slate-200 animate-pulse" />
+                <div className="h-36 w-full rounded-xl bg-slate-100 border border-slate-200/60 animate-pulse" />
+              </div>
+              <div className="h-12 w-full rounded-xl bg-slate-200 animate-pulse" />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  )
+}
+
+// Error screen that displays if any request fails
+function HomeError({ onRetry }) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-b from-sky-100 via-sky-50 to-white px-6">
+      <div className="max-w-md w-full text-center space-y-6 p-8 rounded-2xl border border-sky-100 bg-white shadow-xl backdrop-blur-md">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500 animate-pulse">
+          <AlertCircle className="h-10 w-10 text-red-600" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-xl font-bold text-slate-800">Gagal Memuat Data</h2>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            Terjadi masalah saat mengambil data portofolio dari server. Ini biasanya terjadi karena server sedang mengalami cold start atau masalah koneksi.
+          </p>
+        </div>
+        <button
+          onClick={onRetry}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-sm font-semibold text-white shadow-md transition hover:bg-primary-500 hover:shadow-lg hover:shadow-primary-500/20 active:scale-95"
+        >
+          <RefreshCw className="h-4 w-4 animate-spin" />
+          Coba Lagi
+        </button>
+      </div>
     </div>
   )
 }
