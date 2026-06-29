@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   ArrowRight, FolderGit2, Award, CheckSquare, Mail, Github, 
@@ -31,33 +31,57 @@ export default function Home() {
   
   const { showSuccess, showError } = useToast()
 
+  const isMounted = useRef(true)
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
   const fetchPublicData = async () => {
     setLoading(true)
     setError(null)
-    try {
-      const [profileRes, skillsRes, projectsRes, certsRes] = await Promise.all([
-        api.get('/api/profile'),
-        api.get('/api/skills'),
-        api.get('/api/projects'),
-        api.get('/api/certificates')
-      ])
+    
+    const maxAttempts = 6 // 1 initial + 5 retries
+    const delayMs = 2000
 
-      if (profileRes && profileRes.data && profileRes.data.data) {
-        setProfile(profileRes.data.data)
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const [profileRes, skillsRes, projectsRes, certsRes] = await Promise.all([
+          api.get('/api/profile'),
+          api.get('/api/skills'),
+          api.get('/api/projects'),
+          api.get('/api/certificates')
+        ])
+
+        if (!isMounted.current) return
+
+        if (profileRes && profileRes.data && profileRes.data.data) {
+          setProfile(profileRes.data.data)
+        }
+        setSkills(skillsRes.data.data || [])
+        setProjects(projectsRes.data.data || [])
+        setCertificates(certsRes.data.data || [])
+        
+        setError(null)
+        setLoading(false)
+        return // Successful fetch, exit loop
+      } catch (err) {
+        if (!isMounted.current) return
+        console.warn(`Gagal memuat data portofolio pada percobaan ke-${attempt}.`, err)
+        
+        if (attempt < maxAttempts) {
+          await delay(delayMs)
+        } else {
+          setError(err)
+          setLoading(false)
+        }
       }
-      setSkills(skillsRes.data.data || [])
-      setProjects(projectsRes.data.data || [])
-      setCertificates(certsRes.data.data || [])
-    } catch (err) {
-      console.error("Gagal memuat data portofolio publik", err)
-      setError(err)
-    } finally {
-      setLoading(false)
     }
   }
 
   useEffect(() => {
+    isMounted.current = true
     fetchPublicData()
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
   const handleInputChange = (e) => {
@@ -986,8 +1010,8 @@ function HomeError({ onRetry }) {
         </div>
         <div className="space-y-2">
           <h2 className="text-xl font-bold text-slate-800">Gagal Memuat Data</h2>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            Terjadi masalah saat mengambil data portofolio dari server. Ini biasanya terjadi karena server sedang mengalami cold start atau masalah koneksi.
+          <p className="text-sm text-slate-650 leading-relaxed">
+            Gagal memuat data portofolio. Silakan periksa koneksi internet Anda atau coba beberapa saat lagi.
           </p>
         </div>
         <button
